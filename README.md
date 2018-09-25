@@ -37,7 +37,7 @@ This module borrows from hapi-mongodb, thank you to @Marsup for his excellent wo
 ### Installation:
 
 ```no-highlight
-npm install hapi-multi-mongo
+npm install https://github.com/GlobetrekkerChallenge/hapi-multi-mongo
 ```
 
 #### Usage:
