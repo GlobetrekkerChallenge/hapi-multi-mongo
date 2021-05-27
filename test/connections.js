@@ -1,14 +1,14 @@
 'use strict';
 
-const Hapi = require('hapi');
-const Lab = require('lab');
+const Hapi = require('@hapi/hapi');
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const it = lab.it;
 const beforeEach = lab.beforeEach;
-const expect = require('code').expect;
-const Promise = require('bluebird');
-describe('Hapi server', () => {
+const expect = require('@hapi/code').expect;
+const delay = ms => new Promise(_ => setTimeout(_, ms));
+describe('Hapi Mongo Connection', () => {
 
     let server;
 
@@ -26,11 +26,22 @@ describe('Hapi server', () => {
                     conn: 'mongodb://localhost:27017/test'
                 }
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.exist();
         }
 
+    });
+
+    it('should fail return regex match null ', async () => {
+
+        try {
+            await server.register({
+                plugin: require('../lib'),
+                options: {connection: 'localhost/test'}
+            });
+        } catch (e) {
+            expect(e).to.exist();
+        }
     });
 
     it('should fail with invalid mongodb uri ', async () => {
@@ -38,10 +49,9 @@ describe('Hapi server', () => {
         try {
             await server.register({
                 plugin: require('../lib'),
-                options: { connection: 'mongodb://:x@localhost:27017/test' }
+                options: {connection: 'mongodb://:x@localhost:27017/test'}
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.exist();
         }
     });
@@ -51,10 +61,9 @@ describe('Hapi server', () => {
         try {
             await server.register({
                 plugin: require('../lib'),
-                options: { connection: 'mongodb://localhost:27017' }
+                options: {connection: 'mongodb://localhost:27017'}
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.exist();
         }
     });
@@ -64,10 +73,9 @@ describe('Hapi server', () => {
         try {
             await server.register({
                 plugin: require('../lib'),
-                options: { connection: 'mongodb://localhost:27018/test' }
+                options: {connection: 'mongodb://localhost:27018/test'}
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.exist();
         }
     });
@@ -76,7 +84,7 @@ describe('Hapi server', () => {
 
         await server.register({
             plugin: require('../lib'),
-            options: { connection: 'mongodb://localhost:27017/test' }
+            options: {connection: 'mongodb://localhost:27017/test'}
         });
     });
 
@@ -87,11 +95,10 @@ describe('Hapi server', () => {
                 plugin: require('../lib'),
                 options: {
                     connection: 'mongodb://localhost:27017/test',
-                    options: { native_parser: false }
+                    options: {native_parser: false}
                 }
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -101,7 +108,7 @@ describe('Hapi server', () => {
         try {
             await server.register({
                 plugin: require('../lib'),
-                options: { connection: 'mongodb://localhost:27017/test' }
+                options: {connection: 'mongodb://localhost:27017/test'}
             });
 
             server.route({
@@ -120,8 +127,7 @@ describe('Hapi server', () => {
                 url: '/'
             });
 
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -151,8 +157,7 @@ describe('Hapi server', () => {
                 method: 'GET',
                 url: '/'
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -182,8 +187,7 @@ describe('Hapi server', () => {
                 method: 'GET',
                 url: '/'
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -214,8 +218,7 @@ describe('Hapi server', () => {
                 method: 'GET',
                 url: '/'
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -249,8 +252,7 @@ describe('Hapi server', () => {
                 url: '/'
             });
 
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -273,14 +275,13 @@ describe('Hapi server', () => {
                         },
                         'mongodb://localhost:27017/local'
                     ],
-                    options: { native_parser: false }
+                    options: {native_parser: false}
                 }
             });
             const plugin = server.plugins['hapi-multi-mongo'];
             expect(plugin.mongo).to.be.an.object().and.to.have.length(3);
             expect(plugin.mongo).includes(['test', 'myConn', 'local']);
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -292,7 +293,7 @@ describe('Hapi server', () => {
                 plugin: require('../lib'),
                 options: {
                     connection: [
-                        { uri: 'mongodb://localhost:27017', name: 'myMongo' }
+                        {uri: 'mongodb://localhost:27017', name: 'myMongo'}
                     ]
                 }
             });
@@ -313,8 +314,7 @@ describe('Hapi server', () => {
                 method: 'GET',
                 url: '/'
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -328,7 +328,7 @@ describe('Hapi server', () => {
                     connection: [
                         {
                             uri: 'mongodb://localhost:27017', name: 'myMongo',
-                            options: { promiseLibrary: require('bluebird') }
+                            options: {promiseLibrary: require('bluebird')}
                         },
                         'mongodb://localhost:27017/test'
                     ]
@@ -346,8 +346,7 @@ describe('Hapi server', () => {
 
                     try {
                         await collection.findOne();
-                    }
-                    catch (e) {
+                    } catch (e) {
                         expect(e).to.not.exist();
                     }
 
@@ -359,8 +358,7 @@ describe('Hapi server', () => {
                 method: 'GET',
                 url: '/'
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -384,8 +382,161 @@ describe('Hapi server', () => {
             const plugin = server.plugins['hapi-multi-mongo'];
             expect(plugin.mongo).to.be.an.object().and.to.have.length(2);
             expect(plugin.mongo).includes(['myMongoConn1', 'local']);
+        } catch (e) {
+            expect(e).to.not.exist();
         }
-        catch (e) {
+    });
+
+
+    it('should be able insert data to collection', async () => {
+        try {
+            await server.register({
+                plugin: require('../lib'),
+                options: {
+                    connection: 'mongodb://localhost:27017/test',
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: async (request) => {
+
+                    const mongos = request.server.plugins['hapi-multi-mongo'].mongo;
+                    const collection = mongos['test'].db().collection('hmm-test-data');
+                    try {
+                        const result = await collection.insertOne({
+                            name: "Test User",
+                            grade: "95"
+                        });
+                        expect(result.insertedCount).equal(1);
+                        expect(result.insertedId).to.exist();
+                        return true;
+                    } catch (err) {
+                        return Boom.internal('Internal MongoDB error', err)
+                    }
+                }
+            });
+
+            await server.inject({
+                method: 'GET',
+                url: '/'
+            });
+
+        } catch (e) {
+            expect(e).to.not.exist();
+        }
+    });
+
+
+    it('should be able read data from collection', async () => {
+        try {
+            await server.register({
+                plugin: require('../lib'),
+                options: {
+                    connection: 'mongodb://localhost:27017/test',
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: async (request) => {
+
+                    const mongos = request.server.plugins['hapi-multi-mongo'].mongo;
+                    const collection = mongos['test'].db().collection('hmm-test-data');
+                    try {
+                        const result = await collection.findOne({
+                            name: "Test User",
+                        });
+                        expect(result._id).to.exist();
+                        expect(result.name).to.equal("Test User");
+                        return true;
+                    } catch (err) {
+                        return Boom.internal('Internal MongoDB error', err)
+                    }
+                }
+            });
+
+            await server.inject({
+                method: 'GET',
+                url: '/'
+            });
+
+        } catch (e) {
+            expect(e).to.not.exist();
+        }
+    });
+
+    it('should be able delete data from collection', async () => {
+        try {
+            await server.register({
+                plugin: require('../lib'),
+                options: {
+                    connection: 'mongodb://localhost:27017/test',
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: async (request) => {
+
+                    const mongos = request.server.plugins['hapi-multi-mongo'].mongo;
+                    const collection = mongos['test'].db().collection('hmm-test-data');
+                    try {
+                        const result = await collection.removeOne({
+                            name: "Test User",
+                        });
+                        // expect(result._id).to.exist();
+                        // expect(result.name).to.equal("Test User");
+                        expect(result.deletedCount).equal(1);
+                        return true;
+                    } catch (err) {
+                        return Boom.internal('Internal MongoDB error', err)
+                    }
+                }
+            });
+
+            await server.inject({
+                method: 'GET',
+                url: '/'
+            });
+
+        } catch (e) {
+            expect(e).to.not.exist();
+        }
+    });
+
+
+    it('should be able drop collection from database', async () => {
+        try {
+            await server.register({
+                plugin: require('../lib'),
+                options: {
+                    connection: 'mongodb://localhost:27017/test',
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: async (request) => {
+
+                    const mongos = request.server.plugins['hapi-multi-mongo'].mongo;
+                    let result = await mongos['test'].db().collection('hmm-test-data').drop();
+                    expect(result).to.be.true();
+
+                    return true
+                }
+            });
+
+            await server.inject({
+                method: 'GET',
+                url: '/'
+            });
+
+        } catch (e) {
             expect(e).to.not.exist();
         }
     });
@@ -395,16 +546,15 @@ describe('Hapi server', () => {
         try {
             await server.register({
                 plugin: require('../lib'),
-                options: { connection: 'mongodb://localhost:27017/test' }
+                options: {connection: 'mongodb://localhost:27017/test'}
             });
 
 
             await server.initialize();
             await server.stop();
-            await Promise.delay(100);
+            await delay(100);
 
-        }
-        catch (e) {
+        } catch (e) {
             expect(e).not.to.exist();
         }
     });
